@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CursorAutomation>
+  <ProjectDescription>
+    Proje, CI (Continuous Integration) başarısızlıklarını otomatik olarak analiz edip, çözüm önerisi getiren bir Node.js otomasyon aracıdır.
+    Testler başarısız olursa, test loglarını ve kod farklarını (git diff) al, kök sebebi GPT-5 ile analiz et.
+    Önerilen kod patch’ini hazırla, yeni branch aç ve otomatik olarak Pull Request oluştur.
+    Bu işlem Cursor içinde otomatik gerçekleşecek.
+  </ProjectDescription>
+
+  <Environment>
+    <GitHubRepo>https://github.com/kullanici/auto-fix-bot</GitHubRepo>
+    <NodeVersion>18.x</NodeVersion>
+    <TestFramework>Jest</TestFramework>
+    <CIPlatform>GitHub Actions</CIPlatform>
+    <CursorPro>true</CursorPro>
+    <GPTModel>GPT-5 (Cursor Internal)</GPTModel>
+  </Environment>
+
+  <Trigger>
+    <Event>CI Workflow Fail</Event>
+    <Condition>
+      <TestResult>Fail</TestResult>
+      <Retrieve>
+        <TestLog>latest_test_log.txt</TestLog>
+        <GitDiff>git diff origin/main</GitDiff>
+      </Retrieve>
+    </Condition>
+  </Trigger>
+
+  <Tasks>
+    <AnalyzeFailure>
+      <Input>
+        <TestLogFile>latest_test_log.txt</TestLogFile>
+        <GitDiffOutput>git diff origin/main</GitDiffOutput>
+      </Input>
+      <Action>
+        GPT-5 modelini kullanarak:
+        <OutputFormat>JSON</OutputFormat>
+        <ResponseFields>
+          <RootCauseExplanation>CI neden başarısız oldu, açık ve net şekilde anlat.</RootCauseExplanation>
+          <Patch>Önerilen otomatik kod düzeltmesi (diff formatında)</Patch>
+          <TestSuggestions>Eklenmesi gereken testler varsa belirt.</TestSuggestions>
+          <RiskAssessment>Düzeltmenin potansiyel riskleri</RiskAssessment>
+        </ResponseFields>
+      </Action>
+    </AnalyzeFailure>
+
+    <CreateBranchAndPR>
+      <BranchName>auto-fix/{kisa_commit_hash}</BranchName>
+      <CommitMessage>Auto-fix: CI testi başarısızlığını gideren öneri</CommitMessage>
+      <PRTitle>AutoFixBot tarafından oluşturulan otomatik düzeltme</PRTitle>
+      <PRDescription>
+        Bu PR, CI hatası için GPT-5 tarafından önerilen düzeltmeyi içerir.
+        - Kök neden açıklaması
+        - Önerilen kod patch'i
+        - Ek test önerileri
+      </PRDescription>
+    </CreateBranchAndPR>
+  </Tasks>
+
+  <CursorInstructions>
+    <InteractivePRReview>
+      PR açıldıktan sonra, kullanıcının Cursor arayüzünde PR diff’ini hızlıca inceleyip düzenleyebilmesi için otomatik bağlantı oluştur.
+    </InteractivePRReview>
+    <Logging>
+      Her işlem adımını detaylı logla ve Cursor içinden erişilebilir yap.
+    </Logging>
+  </CursorInstructions>
+
+  <AdditionalRequirements>
+    <Security>
+      API anahtarları ve gizli bilgiler hiçbir şekilde açık dosyalarda yer almamalı, GitHub Secrets kullanılacak.
+    </Security>
+    <ErrorHandling>
+      GPT-5 analizinden hata gelirse veya patch geçersiz olursa, işlem güvenli şekilde geri alınmalı ve kullanıcı uyarılmalı.
+    </ErrorHandling>
+    <Performance>
+      CI süresini aşmayacak, öneri adımı 5 dakikayı geçmemeli.
+    </Performance>
+  </AdditionalRequirements>
+
+</CursorAutomation>

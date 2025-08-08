@@ -1,0 +1,22 @@
+{
+  "name": "cicdd",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CI başarısızlıklarını analiz edip otomatik düzeltme öneren Node.js aracı",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "jest --ci --runInBand",
+    "analyze-failure": "node scripts/auto_fix.js"
+  },
+  "engines": { "node": ">=18" },
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/rest": "^20.1.1",
+    "simple-git": "^3.24.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
+
