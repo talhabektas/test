@@ -30,7 +30,10 @@ jobs:
         run: npm ci
 
       - name: Test
-        run: npm test -- --ci --runInBand | tee latest_test_log.txt
+        shell: bash
+        run: |
+          set -o pipefail
+          npm test -- --ci --runInBand 2>&1 | tee latest_test_log.txt
 
       - name: Analyze failure (on fail)
         if: failure()
